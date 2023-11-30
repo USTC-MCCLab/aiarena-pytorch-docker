@@ -1,0 +1,7 @@
+# choose useable config combination in readme.md
+os : ubuntu
+os_version : '20.04' # 22.04 18.04
+python : '3.9.18' # 3.8.18，3.10.13
+pytorch : '2.1.1' # https://pytorch.org/get-started/previous-versions/
+cuda : '12.1' # 11.8 11.6 11.5 11.4 11.3 https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=cudnn8-runtime-ubuntu
+cuda_flavor : runtime # 推荐使用 runtime 如果需要nvcc，请使用devel

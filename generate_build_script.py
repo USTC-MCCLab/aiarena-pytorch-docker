@@ -1,16 +1,36 @@
 import os
-from argparse import ArgumentParser
-
-# Schema:
-# {
-#    "pytorch_version": {
-#       "cuda_version": [
-#           "pytorch_version", "cuda_version", "torchvision_version", "cuda_version",
-#           "torchaudio_version", "cuda_version", "url"
-#       ],
-#    }
-# }
+from omegaconf import DictConfig, OmegaConf
+import hydra
+#https://pytorch.org/get-started/previous-versions/
 PYTORCH_VERSIONS = {
+    '2.1.1': {
+        'cpu': [
+            '2.1.1', 'cpu', '0.16.1', 'cpu', '2.1.1', 'cpu',
+            'https://download.pytorch.org/whl/cpu/torch_stable.html',
+        ],
+        '11.8' : [
+            '2.1.1', 'cu118', '0.16.1', 'cu118', '2.1.1', 'cu118',
+            'https://download.pytorch.org/whl/cu118/torch_stable.html'
+        ],
+        '12.1': [
+            '2.1.1', 'cu121', '0.16.1', 'cu121', '2.1.1', 'cu121',
+            'https://download.pytorch.org/whl/cu121/torch_stable.html'
+        ],
+    },
+    '2.1.0': {
+        'cpu': [
+            '2.1.0', 'cpu', '0.16.0', 'cpu', '2.1.0', 'cpu',
+            'https://download.pytorch.org/whl/cpu/torch_stable.html',
+        ],
+        '11.8' : [
+            '2.1.0', 'cu118', '0.16.0', 'cu118', '2.1.0', 'cu118',
+            'https://download.pytorch.org/whl/cu118/torch_stable.html'
+        ],
+        '12.1': [
+            '2.1.0', 'cu121', '0.16.0', 'cu121', '2.1.0', 'cu121',
+            'https://download.pytorch.org/whl/cu121/torch_stable.html'
+        ],
+    },
     '2.0.1': {
         'cpu': [
             '2.0.1', 'cpu', '0.15.2', 'cpu', '2.0.2', 'cpu',
@@ -421,6 +441,20 @@ CUDA_VERSIONS = {
         'ubuntu_available': ['18.04', '20.04', '22.04'],
         'centos_available': ['7'],
     },
+    '12.1': {
+        'version_name': '12.1.1',
+        'cudnn': '8',
+        'ubuntu_available': ['20.04', '22.04'],
+        'centos_available': ['7'],
+    }
+}
+
+CONDA_VERSIONS = {
+    "3.11" : "py311_23.10.0-1",
+    "3.10" : "py310_23.10.0-1",
+    "3.9" : "py39_23.10.0-1",
+    "3.8" : "py38_23.10.0-1",
+    "3.7" : "py37_23.1.0-1",
 }
 
 
@@ -429,6 +463,7 @@ BUILD_SH_TEMPLATE_UBUNTU = """#!/bin/sh
 export BASE_IMAGE={base_image}
 
 export PYTHON_VERSION={python_version}
+export CONDA_VERSION={conda_version}
 
 export PYTORCH_VERSION={}
 export PYTORCH_VERSION_SUFFIX={}
@@ -440,124 +475,14 @@ export PYTORCH_DOWNLOAD_URL={}
 
 export IMAGE_TAG={image_tag}
 
-./docker/ubuntu/build.sh
-"""
-
-
-BUILD_SH_TEMPLATE_CENTOS = """#!/bin/sh
-
-export BASE_IMAGE={base_image}
-
-export PYTHON_VERSION={python_version}
-
-export PYTORCH_VERSION={}
-export PYTORCH_VERSION_SUFFIX={}
-export TORCHVISION_VERSION={}
-export TORCHVISION_VERSION_SUFFIX={}
-export TORCHAUDIO_VERSION={}
-export TORCHAUDIO_VERSION_SUFFIX={}
-export PYTORCH_DOWNLOAD_URL={}
-
-export IMAGE_TAG={image_tag}
-
-./docker/centos/build.sh
+./docker/build.sh
 """
 
 
 BUILD_SH_TEMPLATE = {
     'ubuntu': BUILD_SH_TEMPLATE_UBUNTU,
-    'centos': BUILD_SH_TEMPLATE_CENTOS,
 }
 
-
-GITHUB_BUILD_YML_TEMPLATE_UBUNTU = """name: Build({name})
-
-env:
-  BASE_IMAGE: "{base_image}"
-
-  PYTHON_VERSION: "{python_version}"
-
-  PYTORCH_VERSION: "{}"
-  PYTORCH_VERSION_SUFFIX: "{}"
-  TORCHVISION_VERSION: "{}"
-  TORCHVISION_VERSION_SUFFIX: "{}"
-  TORCHAUDIO_VERSION: "{}"
-  TORCHAUDIO_VERSION_SUFFIX: "{}"
-  PYTORCH_DOWNLOAD_URL: "{}"
-
-  IMAGE_TAG: "{image_tag}"
-
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docker/ubuntu/**'
-      - '.github/workflows/docker_build_{name}.yml'
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Login DockerHub
-        run: docker login --username=${{{{ secrets.DOCKER_USERNAME }}}} --password=${{{{ secrets.DOCKER_PASSWORD }}}}
-
-      - name: Build docker image
-        run: docker/ubuntu/build.sh
-
-      - name: Push docker image
-        run: docker push cnstark/pytorch:${{IMAGE_TAG}}
-"""
-
-
-GITHUB_BUILD_YML_TEMPLATE_CENTOS = """name: Build({name})
-
-env:
-  BASE_IMAGE: "{base_image}"
-
-  PYTHON_VERSION: "{python_version}"
-
-  PYTORCH_VERSION: "{}"
-  PYTORCH_VERSION_SUFFIX: "{}"
-  TORCHVISION_VERSION: "{}"
-  TORCHVISION_VERSION_SUFFIX: "{}"
-  TORCHAUDIO_VERSION: "{}"
-  TORCHAUDIO_VERSION_SUFFIX: "{}"
-  PYTORCH_DOWNLOAD_URL: "{}"
-
-  IMAGE_TAG: "{image_tag}"
-
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docker/centos/**'
-      - '.github/workflows/docker_build_{name}.yml'
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Login DockerHub
-        run: docker login --username=${{{{ secrets.DOCKER_USERNAME }}}} --password=${{{{ secrets.DOCKER_PASSWORD }}}}
-
-      - name: Build docker image
-        run: docker/centos/build.sh
-
-      - name: Push docker image
-        run: docker push cnstark/pytorch:${{IMAGE_TAG}}
-"""
-
-
-GITHUB_BUILD_YML_TEMPLATE = {
-    'ubuntu': GITHUB_BUILD_YML_TEMPLATE_UBUNTU,
-    'centos': GITHUB_BUILD_YML_TEMPLATE_CENTOS,
-}
 
 README_TEMPLATE = '| ![pytorch{}] ![python{}] ![{}] ![{}{}] [![](https://img.shields.io/docker/image-size/cnstark/pytorch/{})][DockerHub] | `docker pull cnstark/pytorch:{}` |'
 
@@ -565,6 +490,8 @@ README_TEMPLATE = '| ![pytorch{}] ![python{}] ![{}] ![{}{}] [![](https://img.shi
 def generate_build_args(os_name, os_version, python_version, pytorch_version, cuda_version, cuda_flavor=None):
     if os_version not in OS_VERSIONS[os_name]:
         raise ValueError(f'OS {os_name} {os_version} is not available: choose from {OS_VERSIONS[os_name]}!')
+
+    conda_version = CONDA_VERSIONS['.'.join(python_version.split('.')[:2])]
 
     if cuda_version == 'cpu':
         base_image = '{}:{}'.format(os_name, os_version)
@@ -593,7 +520,8 @@ def generate_build_args(os_name, os_version, python_version, pytorch_version, cu
     kwargs = {
         'base_image': base_image,
         'python_version': python_version,
-        'image_tag': image_tag
+        'image_tag': image_tag,
+        'conda_version': conda_version,
     }
 
     pytorch_args = PYTORCH_VERSIONS[pytorch_version][cuda_version].copy()
@@ -614,39 +542,11 @@ def generate_build_sh(os_name, os_version, python_version, pytorch_version, cuda
 
     os.system('chmod +x {}'.format(file_path))
 
-
-def generate_github_build_yml(os_name, os_version, python_version, pytorch_version, cuda_version, cuda_flavor=None, save_dir='.github/workflows'):
-    pytorch_args, kwargs = generate_build_args(os_name, os_version, python_version, pytorch_version, cuda_version, cuda_flavor)
-
-    kwargs['name'] = kwargs['image_tag'].replace('-', '_')
-    content = GITHUB_BUILD_YML_TEMPLATE[os_name].format(*pytorch_args, **kwargs)
-
-    file_path = os.path.join(save_dir, 'docker_build_{}.yml'.format(kwargs['image_tag'].replace('-', '_')))
-    with open(file_path, 'w') as f:
-        f.write(content)
-    
-    print('Image \'{}\' generated, please put the following content in the README.md: '.format(kwargs['image_tag']))
-    print('=' * 50)
-    print(README_TEMPLATE.format(
-        pytorch_version, python_version,
-        'cpu' if cuda_version == 'cpu' else ('cuda' + cuda_version + ('' if cuda_flavor is None else '-' + cuda_flavor)),
-        os_name, os_version, kwargs['image_tag'], kwargs['image_tag']
-    ))
-    print('=' * 50)
-
-
-def parse_args():
-    parser = ArgumentParser(description='Generate docker build script.')
-    parser.add_argument('--os', help='Operating system.', required=True)
-    parser.add_argument('--os-version', help='Operating system version.', required=True)
-    parser.add_argument('--python', help='Python version.', required=True)
-    parser.add_argument('--pytorch', help='Pytorch version.', required=True)
-    parser.add_argument('--cuda', help='CUDA version, `cpu` means CPU version.', default='cpu')
-    parser.add_argument('--cuda-flavor', help='CUDA flavor, `runtime` or `devel`, default is None, means use base image')
-    return parser.parse_args()
+@hydra.main(config_path=".", config_name="config", version_base='1.2')
+def main(cfg: DictConfig) -> None:
+    print(OmegaConf.to_yaml(cfg))
+    generate_build_sh(cfg.os, cfg.os_version, cfg.python, cfg.pytorch, cfg.cuda, cfg.cuda_flavor)
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    generate_build_sh(args.os, args.os_version, args.python, args.pytorch, args.cuda, args.cuda_flavor)
-    generate_github_build_yml(args.os, args.os_version, args.python, args.pytorch, args.cuda, args.cuda_flavor)
+    main()
