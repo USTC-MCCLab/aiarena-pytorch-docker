@@ -4,11 +4,12 @@ FROM ${BASE_IMAGE}
 
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
 
-RUN sed -i "s/archive.ubuntu.com/mirrors.ustc.edu.cn/g" /etc/apt/sources.list && \
-    sed -i "s/security.ubuntu.com/mirrors.ustc.edu.cn/g" /etc/apt/sources.list && \
+RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
+    sed -i 's/http:/https:/g' /etc/apt/sources.list && \
     rm -rf /var/lib/apt/lists/* \
     /etc/apt/sources.list.d/cuda.list \ && \
-    apt-get clean && apt-get update && \
+    apt-get clean && apt-get update && apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends\
     git htop rar sudo swig tar tmux tzdata unrar unzip wget curl zip zsh vim \
     openssh-client openssh-server openssl net-tools locales dpkg-dev tree \
