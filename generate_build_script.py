@@ -449,6 +449,7 @@ CUDA_VERSIONS = {
     }
 }
 
+# https://repo.anaconda.com/miniconda/
 CONDA_VERSIONS = {
     "3.11" : "py311_23.10.0-1",
     "3.10" : "py310_23.10.0-1",
@@ -491,7 +492,8 @@ def generate_build_args(os_name, os_version, python_version, pytorch_version, cu
     if os_version not in OS_VERSIONS[os_name]:
         raise ValueError(f'OS {os_name} {os_version} is not available: choose from {OS_VERSIONS[os_name]}!')
 
-    conda_version = CONDA_VERSIONS['.'.join(python_version.split('.')[:2])]
+    # 使用最新版miniconda
+    # conda_version = CONDA_VERSIONS['.'.join(python_version.split('.')[:2])]
 
     if cuda_version == 'cpu':
         base_image = '{}:{}'.format(os_name, os_version)
@@ -521,7 +523,7 @@ def generate_build_args(os_name, os_version, python_version, pytorch_version, cu
         'base_image': base_image,
         'python_version': python_version,
         'image_tag': image_tag,
-        'conda_version': conda_version,
+        'conda_version': "latest",
     }
 
     pytorch_args = PYTORCH_VERSIONS[pytorch_version][cuda_version].copy()

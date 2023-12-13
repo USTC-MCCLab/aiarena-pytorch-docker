@@ -64,7 +64,7 @@ RUN if [ ! $TORCHAUDIO_VERSION ]; \
     rm -r /root/.cache/pip
 
 ARG CONDA_VERSION
-
+# https://repo.anaconda.com/miniconda/
 RUN curl https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh -o ./miniconda.sh && \
     bash miniconda.sh -b -p /opt/conda && \
     /opt/conda/bin/conda init bash && \

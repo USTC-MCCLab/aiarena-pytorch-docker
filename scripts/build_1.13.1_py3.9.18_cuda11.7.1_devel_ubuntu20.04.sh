@@ -3,7 +3,7 @@
 export BASE_IMAGE=nvidia/cuda:11.7.1-cudnn8-devel-ubuntu20.04
 
 export PYTHON_VERSION=3.9.18
-export CONDA_VERSION=py39_23.10.0-1
+export CONDA_VERSION=latest
 
 export PYTORCH_VERSION=1.13.1
 export PYTORCH_VERSION_SUFFIX=+cu117
