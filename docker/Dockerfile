@@ -87,8 +87,8 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 ### 平台调试任务依赖工具 ###
 
-# 安装 jupyterlab 和 code-server
-RUN pip --no-cache-dir install jupyterlab -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 安装 jupyterlab , tensorboard 和 code-server
+RUN pip --no-cache-dir install tensorboard tensorboard jupyterlab -i https://pypi.tuna.tsinghua.edu.cn/simple
 # 从 https://github.com/coder/code-server/releases 下载
 ENV VSCODE_VERSION 4.19.1
 COPY ./package/code-server_${VSCODE_VERSION}_amd64.deb /tmp/code-server.deb
