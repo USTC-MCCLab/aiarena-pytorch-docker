@@ -42,26 +42,29 @@ ARG TORCHAUDIO_VERSION
 ARG TORCHAUDIO_VERSION_SUFFIX
 ARG PYTORCH_DOWNLOAD_URL
 
-RUN if [ ! $TORCHAUDIO_VERSION ]; \
+RUN if [ ${PYTORCH_VERSION} ] ; \
     then \
-        TORCHAUDIO=; \
-    else \
-        TORCHAUDIO=torchaudio==${TORCHAUDIO_VERSION}${TORCHAUDIO_VERSION_SUFFIX}; \
-    fi && \
-    if [ ! $PYTORCH_DOWNLOAD_URL ]; \
-    then \
-        pip install \
-            torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
-            torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
-            ${TORCHAUDIO}; \
-    else \
-        pip install \
-            torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
-            torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
-            ${TORCHAUDIO} \
-            -f ${PYTORCH_DOWNLOAD_URL}; \
-    fi && \
-    rm -r /root/.cache/pip
+        if [ ! $TORCHAUDIO_VERSION ] ; \
+        then \
+            TORCHAUDIO=; \
+        else \
+            TORCHAUDIO=torchaudio==${TORCHAUDIO_VERSION}${TORCHAUDIO_VERSION_SUFFIX}; \
+        fi && \
+        if [ ! $PYTORCH_DOWNLOAD_URL ]; \
+        then \
+            pip install \
+                torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
+                torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
+                ${TORCHAUDIO}; \
+        else \
+            pip install \
+                torch==${PYTORCH_VERSION}${PYTORCH_VERSION_SUFFIX} \
+                torchvision==${TORCHVISION_VERSION}${TORCHVISION_VERSION_SUFFIX} \
+                ${TORCHAUDIO} \
+                -f ${PYTORCH_DOWNLOAD_URL}; \
+        fi && \
+        rm -r /root/.cache/pip; \
+    fi
 
 ARG CONDA_VERSION
 # https://repo.anaconda.com/miniconda/
@@ -90,6 +93,6 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 # 安装 jupyterlab , tensorboard 和 code-server
 RUN pip --no-cache-dir install tensorboard tensorboard jupyterlab -i https://pypi.tuna.tsinghua.edu.cn/simple
 # 从 https://github.com/coder/code-server/releases 下载
-ENV VSCODE_VERSION 4.19.1
-COPY ./package/code-server_${VSCODE_VERSION}_amd64.deb /tmp/code-server.deb
-RUN dpkg -i /tmp/code-server.deb && rm /tmp/code-server.deb
+# ENV VSCODE_VERSION 4.19.1
+# COPY ./package/code-server_${VSCODE_VERSION}_amd64.deb /tmp/code-server.deb
+# RUN dpkg -i /tmp/code-server.deb && rm /tmp/code-server.deb

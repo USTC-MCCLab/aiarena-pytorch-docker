@@ -479,34 +479,49 @@ export IMAGE_TAG={image_tag}
 ./docker/build.sh
 """
 
+BUILD_SH_TEMPLATE_UBUNTU_2 = """#!/bin/sh
+
+export BASE_IMAGE={base_image}
+
+export PYTHON_VERSION={python_version}
+export CONDA_VERSION={conda_version}
+
+export IMAGE_TAG={image_tag}
+
+./docker/build.sh
+"""
+
 
 BUILD_SH_TEMPLATE = {
     'ubuntu': BUILD_SH_TEMPLATE_UBUNTU,
+    'ubuntu_2': BUILD_SH_TEMPLATE_UBUNTU_2,
 }
 
 
 README_TEMPLATE = '| ![pytorch{}] ![python{}] ![{}] ![{}{}] [![](https://img.shields.io/docker/image-size/cnstark/pytorch/{})][DockerHub] | `docker pull cnstark/pytorch:{}` |'
 
 
-def generate_build_args(os_name, os_version, python_version, pytorch_version, cuda_version, cuda_flavor=None):
+def generate_build_args(os_name, os_version, python_version, pytorch_version, install_pytorch ,cuda_version, cuda_flavor=None):
+    image_tags = []
+    if not install_pytorch:
+        pytorch_version = ''
+    else:
+        image_tags.append("torch"+pytorch_version)
+
     if os_version not in OS_VERSIONS[os_name]:
         raise ValueError(f'OS {os_name} {os_version} is not available: choose from {OS_VERSIONS[os_name]}!')
 
-    # 使用最新版miniconda
+    # 使用最新版 miniconda
     # conda_version = CONDA_VERSIONS['.'.join(python_version.split('.')[:2])]
-
+    image_tags.append("py"+python_version)
     if cuda_version == 'cpu':
         base_image = '{}:{}'.format(os_name, os_version)
-        image_tag = '{}-py{}-{}{}'.format(pytorch_version, python_version, os_name, os_version)
     else:
         if os_version not in CUDA_VERSIONS[cuda_version][os_name + '_available']:
             raise ValueError(f'CUDA {cuda_version} is not available in {os_name} {os_version}!')
         if cuda_flavor is None:
             base_image = '{}:{}'.format(os_name, os_version)
-            image_tag = '{}-py{}-cuda{}-{}{}'.format(
-                pytorch_version, python_version, CUDA_VERSIONS[cuda_version]['version_name'],
-                os_name, os_version
-            )
+            image_tags.append("cuda"+ CUDA_VERSIONS[cuda_version]['version_name'])
         else:
             if cuda_flavor not in ('runtime', 'devel'):
                 raise ValueError(f'CUDA flavor is not available!')
@@ -515,10 +530,10 @@ def generate_build_args(os_name, os_version, python_version, pytorch_version, cu
                 CUDA_VERSIONS[cuda_version]['version_name'], CUDA_VERSIONS[cuda_version]['cudnn'],
                 cuda_flavor, os_name, os_version
             )
-            image_tag = '{}-py{}-cuda{}-{}-{}{}'.format(
-                pytorch_version, python_version, CUDA_VERSIONS[cuda_version]['version_name'],
-                cuda_flavor,os_name, os_version
-            )
+            image_tags.append("cuda"+ CUDA_VERSIONS[cuda_version]['version_name'])
+            image_tags.append(cuda_flavor)
+    image_tags.append(os_name+os_version)
+    image_tag = "-".join(image_tags)
     kwargs = {
         'base_image': base_image,
         'python_version': python_version,
@@ -526,17 +541,23 @@ def generate_build_args(os_name, os_version, python_version, pytorch_version, cu
         'conda_version': "latest",
     }
 
-    pytorch_args = PYTORCH_VERSIONS[pytorch_version][cuda_version].copy()
-    for i in [1, 3, 5]:
-        if pytorch_args[i] != '':
-            pytorch_args[i]  = '+' + pytorch_args[i]
-    return pytorch_args, kwargs
+    if install_pytorch:
+        pytorch_args = PYTORCH_VERSIONS[pytorch_version][cuda_version].copy()
+        for i in [1, 3, 5]:
+            if pytorch_args[i] != '':
+                pytorch_args[i]  = '+' + pytorch_args[i]
+        return pytorch_args, kwargs
+    else:
+        return [], kwargs
 
 
-def generate_build_sh(os_name, os_version, python_version, pytorch_version, cuda_version, cuda_flavor=None, save_dir='scripts'):
-    pytorch_args, kwargs = generate_build_args(os_name, os_version, python_version, pytorch_version, cuda_version, cuda_flavor)
-
-    content = BUILD_SH_TEMPLATE[os_name].format(*pytorch_args, **kwargs)
+def generate_build_sh(cfg, save_dir='scripts'):
+    if cfg.install_pytorch:
+        pytorch_args, kwargs = generate_build_args(cfg.os, cfg.os_version, cfg.python, cfg.pytorch, cfg.install_pytorch, cfg.cuda, cfg.cuda_flavor)
+        content = BUILD_SH_TEMPLATE[cfg.os].format(*pytorch_args, **kwargs)
+    else:
+        _, kwargs = generate_build_args(cfg.os, cfg.os_version, cfg.python, cfg.pytorch, cfg.install_pytorch, cfg.cuda, cfg.cuda_flavor)
+        content = BUILD_SH_TEMPLATE[cfg.os+"_2"].format(**kwargs)
 
     file_path = os.path.join(save_dir, 'build_{}.sh'.format(kwargs['image_tag'].replace('-', '_')))
     with open(file_path, 'w') as f:
@@ -547,7 +568,7 @@ def generate_build_sh(os_name, os_version, python_version, pytorch_version, cuda
 @hydra.main(config_path=".", config_name="config", version_base='1.2')
 def main(cfg: DictConfig) -> None:
     print(OmegaConf.to_yaml(cfg))
-    generate_build_sh(cfg.os, cfg.os_version, cfg.python, cfg.pytorch, cfg.cuda, cfg.cuda_flavor)
+    generate_build_sh(cfg)
 
 
 if __name__ == '__main__':

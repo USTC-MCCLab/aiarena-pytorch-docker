@@ -69,6 +69,7 @@ Note: `/path/to/project` and `/path/to/dataset` is your **own** project path and
 <!-- plugins -->
 [jupyterlab]: https://img.shields.io/badge/jupyterlab-wheat?logo=Jupyter
 [vscode]: https://img.shields.io/badge/Codesever-dodgerblue?logo=visualstudiocode
+[tensorboard]: https://img.shields.io/badge/Tensorboard-dodgerblue?logo=tensorflow
 
 
 <!-- order: cuda, python, os -->
@@ -77,27 +78,36 @@ Note: `/path/to/project` and `/path/to/dataset` is your **own** project path and
 
 | Image | Image Name | 
 | -------------| -------------|
-| ![pytorch2.1.1] ![python3.9.18] ![cuda12.1-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] | `docker.kt.io/baseimages/pytorch-2.1.1-py3.9.18-cuda12.1.1-devel-ubuntu20.04` |
-
+| ![pytorch2.1.1] ![python3.9.18] ![cuda12.1-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/torch-2.1.1-py3.9.18-cuda12.1.1-devel-ubuntu20.04` |
+|  ![python3.9.18] ![cuda12.1-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda12.1.1-devel-ubuntu20.04` |
+|  ![python3.9.18] ![cuda12.1] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda12.1.1-runtime-ubuntu20.04` |
 ### 2.0.1
 
 | Image | Image Name | 
 | -------------| -------------|
-| ![pytorch2.0.1] ![python3.9.18] ![cuda11.8-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] | `baseimages/pytorch-2.0.1-py3.9.18-cuda11.8.0-devel-ubuntu20.04` |
+| ![pytorch2.0.1] ![python3.9.18] ![cuda11.8-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/torch-2.0.1-py3.9.18-cuda11.8.0-devel-ubuntu20.04` |
+|  ![python3.9.18] ![cuda11.8-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.8.0-devel-ubuntu20.04` |
+|  ![python3.9.18] ![cuda11.8] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.8.0-runtime-ubuntu20.04` |
 
 
 ### 1.13.1
 
 | Image | Image Name | 
 | -------------| -------------|
-| ![pytorch1.13.1] ![python3.9.18] ![cuda11.7-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] | `baseimages/pytorch-1.13.1-py3.9.18-cuda11.7.1-devel-ubuntu20.04` |
+| ![pytorch1.13.1] ![python3.9.18] ![cuda11.7-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/torch-1.13.1-py3.9.18-cuda11.7.1-devel-ubuntu20.04` |
+|  ![python3.9.18] ![cuda11.7-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.7.1-devel-ubuntu20.04` |
+|  ![python3.9.18] ![cuda11.7] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.7.1-runtime-ubuntu20.04` |
 
 ### 1.12.1
 
 | Image | Pull Command | 
 | -------------| -------------|
-| ![pytorch1.12.1] ![python3.9.18] ![cuda11.6-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] | `docker.kt.io/baseimages/pytorch-1.12.1-py3.9.18-cuda11.6.2-devel-ubuntu20.04` |
-| ![pytorch1.12.1] ![python3.9.18] ![cuda11.3-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] | `docker.kt.io/baseimages/pytorch-1.12.1-py3.9.18-cuda11.3.1-devel-ubuntu20.04` |
+| ![pytorch1.12.1] ![python3.9.18] ![cuda11.6-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/torch-1.12.1-py3.9.18-cuda11.6.2-devel-ubuntu20.04` |
+| ![pytorch1.12.1] ![python3.9.18] ![cuda11.3-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/torch-1.12.1-py3.9.18-cuda11.3.1-devel-ubuntu20.04` |
+| ![python3.9.18] ![cuda11.6-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.6.2-devel-ubuntu20.04` |
+| ![python3.9.18] ![cuda11.3-devel] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.3.1-devel-ubuntu20.04` |
+| ![python3.9.18] ![cuda11.6] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.6.2-runtime-ubuntu20.04` |
+| ![python3.9.18] ![cuda11.3] ![ubuntu20.04] ![jupyterlab] ![vscode] ![tensorboard]| `docker.kt.io/baseimages/py3.9.18-cuda11.3.1-runtime-ubuntu20.04` |
 
 ## Other Images
 
@@ -108,12 +118,13 @@ Generate build script by following command (available versions see [Available Ve
 change the config.yaml
 ```yaml
 # choose useable config combination in readme.md
-os : ubuntu
-os_version : '20.04' #  22.04 18.04
-python : '3.9.18' #  3.8.18，3.10.13
-pytorch : '2.1.1' # https://pytorch.org/get-started/previous-versions/
-cuda : '12.1' #  11.8 11.6 11.5 11.4 11.3 https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=cudnn8-runtime-ubuntu
-cuda_flavor : runtime # runtime (recommended) ,if nvcc or nccl is needed please use devel
+os: ubuntu
+os_version: "20.04" # 22.04 18.04
+python: "3.9.18" # 3.8.18，3.10.13
+cuda: "11.3" # 12.1 11.8 11.7 11.6 11.5 11.4 11.3 https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=cudnn8-runtime-ubuntu
+cuda_flavor: devel # 推荐使用 runtime 如果需要nvcc，请使用devel
+install_pytorch: false # true false
+pytorch: "2.1.1" # https://pytorch.org/get-started/previous-versions/
 ```
 
 use python to generate bash file

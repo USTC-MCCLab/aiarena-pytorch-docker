@@ -13,6 +13,6 @@ export TORCHAUDIO_VERSION=2.1.1
 export TORCHAUDIO_VERSION_SUFFIX=+cu121
 export PYTORCH_DOWNLOAD_URL=https://download.pytorch.org/whl/cu121/torch_stable.html
 
-export IMAGE_TAG=2.1.1-py3.9.18-cuda12.1.1-devel-ubuntu20.04
+export IMAGE_TAG=torch2.1.1-py3.9.18-cuda12.1.1-devel-ubuntu20.04
 
 ./docker/build.sh

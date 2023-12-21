@@ -11,10 +11,6 @@ echo "" > imageslist.txt
 # 遍历文件列表并执行
 for file in $files; do
     bash "$file"
-    tail -n 2 imageslist.txt | while IFS= read -r image; do
-    docker push "$image" > /dev/null &
-    done
 done
 
-cat imageslist.txt
-rm imageslist.txt
+# docker images | grep "docker.kt.io/baseimages" | awk '{print $1":"$2}' | xargs -n1 docker push
